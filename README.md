@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wonderkin Tattoo
 
-## Getting Started
-
-First, run the development server:
+Animated single-page landing for Wonderkin Tattoo (Düsseldorf), built with Next.js 16, React 19, Tailwind CSS 4, GSAP 3 and Lenis.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build && npm start
+npm run lint
+npm run typecheck
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+  app/                 layout (fonts, metadata, global providers), page, globals.css (design tokens)
+  components/
+    layout/            Header, MobileMenu, MenuToggle
+    sections/          Hero → About → Styles → Gallery → Testimonials → Contact → Outro (footer)
+    form/              ContactForm + TextField, ChoiceGroup, Checkbox, FileField
+    ui/                motion primitives: SplitReveal, Reveal, ParallaxImage, Magnetic, RollingText,
+                       ArrowButton, VelocityMarquee, Sigil, Cursor, Preloader, ScrollProgress, icons
+  content/site.ts      all copy, nav items, testimonials and image imports
+  hooks/useScrollTo.ts smooth anchor scrolling through Lenis
+  lib/gsap.ts          the only place GSAP plugins are registered (+ shared eases)
+  lib/contact.ts       contact form submit (stub — see below)
+  providers/           SmoothScroll (Lenis ↔ GSAP ticker ↔ ScrollTrigger), IntroProvider (preloader → hero)
+public/images/         hero/, about/, gallery/, voices/, outro-bg.jpg
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Motion notes
 
-## Learn More
+- **One scroll engine.** Lenis is driven by `gsap.ticker`, and every ScrollTrigger updates from Lenis, so pinned/scrubbed sections never drift.
+- **Always import GSAP from `@/lib/gsap`.** It registers ScrollTrigger, SplitText, DrawSVG and CustomEase once and exposes the `ink` / `ink.inOut` eases (mirrored as `ease-ink` / `ease-ink-in-out` in Tailwind).
+- **Responsive animations use `gsap.matchMedia()`.** With a conditions object, the callback only runs if at least one condition matches, so always include a condition that is true on every device (e.g. both motion queries).
+- **`prefers-reduced-motion`** disables Lenis, the preloader sequence, reveals and parallax.
+- **Custom cursor labels:** add `data-cursor="Label"` to any element.
 
-To learn more about Next.js, take a look at the following resources:
+## TODO before launch
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/contact.ts` only simulates sending. Connect it to a real endpoint (route handler + email service, Formspree, …).
+- Set the real Instagram URL in `src/content/site.ts`, and link the Imprint / Privacy pages in `Outro.tsx` and `ContactForm.tsx`.

@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* ---------------------------------------------------------------------------
+ * Design tokens
+ * ------------------------------------------------------------------------ */
+@theme {
+  --color-ink: #0d0d0d;
+  --color-coal: #151515;
+  --color-surface: #1d1d1d;
+  --color-stone: #83827e;
+  --color-bone: #e8e8e8;
+  --color-mute: #9a9a9a;
+  --color-line: #343434;
+  --color-ember: #c8372d;
+
+  --ease-ink: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-ink-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+
+  --animate-grain: grain 0.9s steps(6) infinite;
+  --animate-spin-slow: spin 40s linear infinite;
+  --animate-scroll-cue: scroll-cue 2.2s var(--ease-ink-in-out) infinite;
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6%, 4%); }
+    40% { transform: translate(5%, -7%); }
+    60% { transform: translate(-3%, 8%); }
+    80% { transform: translate(7%, 2%); }
+  }
+
+  @keyframes scroll-cue {
+    0% { transform: scaleY(0); transform-origin: top; }
+    45% { transform: scaleY(1); transform-origin: top; }
+    55% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+}
+
+/* ---------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------ */
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-ember);
+    color: var(--color-bone);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-bone);
+    outline-offset: 4px;
+  }
+
+  /* Custom cursor replaces the native one on fine pointers. */
+  @media (pointer: fine) {
+    html.has-cursor,
+    html.has-cursor * {
+      cursor: none !important;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3d3d3d;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Utilities
+ * ------------------------------------------------------------------------ */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px currentColor;
+  -webkit-text-stroke-color: var(--color-bone);
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+/* SplitText masks: keep descenders/italics of the display serif visible. */
+.split-pad .split-line-mask {
+  padding: 0 0.06em 0.1em;
+  margin: 0 -0.06em -0.1em;
+}
+
+/* ArrowButton liquid fill, expanding from the arrow badge. */
+.btn-fill {
+  --origin: calc(100% - 1.875rem) 50%;
+  clip-path: circle(0% at var(--origin));
+  transition: clip-path 0.8s var(--ease-ink);
+}
+.btn-lg .btn-fill {
+  --origin: calc(100% - 2.125rem) 50%;
+}
+@media (min-width: 768px) {
+  .btn-lg .btn-fill {
+    --origin: calc(100% - 2.375rem) 50%;
+  }
+}
+.group:hover > .btn-fill,
+.group:focus-visible > .btn-fill {
+  clip-path: circle(150% at var(--origin));
+}
+
+/* Film-grain overlay */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: var(--animate-grain);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
